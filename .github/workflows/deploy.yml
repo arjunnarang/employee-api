@@ -1,0 +1,51 @@
+name: Employee api deployment
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build JAR
+        run: mvn clean package
+
+      - name: Build Docker
+        run: docker build -t employee-api-image .
+
+      - name: Authenticate GCP
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up cloud sdk
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker asia-south2-b-docker.pkg.dev
+
+      - name: Tag Image
+        run: docker tag employee-api asia-south2-b-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee-api
+
+      - name: Push Image
+        run: docker push asia-south2-b-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee-api
+
+      - name: Get GKE Credentials
+        run: |
+          gcloud container clusters get-credentials employee-api-cluster --region asia-south2-b --project employee-project-495713
+
+      - name: Deploy to GKE
+        run: |
+          kubectl set image deployment/employee-api employee-api=asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee-api
