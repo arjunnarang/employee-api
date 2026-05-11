@@ -43,10 +43,10 @@ jobs:
         run: gcloud auth configure-docker asia-south2-docker.pkg.dev
 
       - name: Tag Image
-        run: docker tag employee-api-image asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee-api:latest
+        run: docker tag employee-api-image asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee_api_image:latest
 
       - name: Push Image
-        run: docker push asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee-api:latest
+        run: docker push asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee_api_image:latest
 
       - name: Get GKE Credentials
         run: |
@@ -58,4 +58,4 @@ jobs:
 
       - name: Deploy to GKE
         run: |
-          kubectl set image deployment/employee-api employee-api=asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee-api:latest
+          kubectl set image deployment/employee-api employee-api=asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee_api_image:latest
