@@ -43,19 +43,23 @@ jobs:
         run: gcloud auth configure-docker asia-south2-docker.pkg.dev
 
       - name: Tag Image
-        run: docker tag employee-api-image asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee_api_image:latest
+        run: docker tag employee-api-image asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee-api:latest
 
       - name: Push Image
-        run: docker push asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee_api_image:latest
+        run: docker push asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee-api:latest
 
       - name: Get GKE Credentials
         run: |
-          gcloud container clusters get-credentials employee-api-cluster --zone asia-south2-b --project employee-project-495713
+          gcloud container clusters get-credentials employee-api-cluster --zone asia-south2-b --project ${{ secrets.PROJECT_ID }}
 
       - name: Create Kubernetes Secret
         run: |
           kubectl create secret generic mysql-secret --from-literal=username=${{ secrets.SPRING_DATASOURCE_USERNAME }} --from-literal=password=${{ secrets.SPRING_DATASOURCE_PASSWORD }} --from-literal=url=${{ secrets.SPRING_DATASOURCE_URL }} --dry-run=client -o yaml | kubectl apply -f -
 
+      - name: Create Deployment
+        run: |
+          kubectl create deployment employee-api --image=asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee-api:latest
+
       - name: Deploy to GKE
         run: |
-          kubectl set image deployment/employee_api_image employee_api_image=asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee_api_image:latest
+          kubectl set image deployment/employee-api employee-api=asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee-api:latest
