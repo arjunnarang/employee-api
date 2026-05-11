@@ -58,4 +58,4 @@ jobs:
 
       - name: Deploy to GKE
         run: |
-          kubectl set image deployment/employee-api employee-api=asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee_api_image:latest
+          kubectl set image deployment/employee_api_image employee_api_image=asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee_api_image:latest
