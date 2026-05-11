@@ -50,6 +50,10 @@ jobs:
         run: |
           gcloud container clusters get-credentials employee-api-cluster --zone asia-south2-b --project employee-project-495713
 
+      - name: Create Kubernetes Secret
+        run: |
+          kubectl create secret generic mysql-secret --from-literal=username=${{ secrets.SPRING_DATASOURCE_USERNAME }} --from-literal=password=${{ secrets.SPRING_DATASOURCE_PASSWORD }} --from-literal=url=${{ secrets.SPRING_DATASOURCE_URL }} --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Deploy to GKE
         run: |
           kubectl set image deployment/employee-api employee-api=asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee-api:latest
