@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employee-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: employee-api
+  template:
+    metadata:
+      labels:
+        app: employee-api
+    spec:
+      containers:
+        - name: employee-api
+          image: asia-south2-docker.pkg.dev/${{ secrets.PROJECT_ID }}/employee-api-repo/employee-api:latest
+          ports:
+            - containerPort: 8080
+
+          envFrom:
+            - secretRef:
+                name: mysql-secret
